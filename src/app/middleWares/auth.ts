@@ -7,7 +7,7 @@ import config from "../../config";
 
 export const auth = (...roles: string[]) => {
   return async (
-    req: Request & { user?: any },
+    req: Request,
     res: Response,
     next: NextFunction
   ) => {

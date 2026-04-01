@@ -5,21 +5,21 @@ import bcrypt from "bcrypt";
 import { Secret } from "jsonwebtoken";
 import config from "../../../config";
 import emailSender from "./emailSender";
-import { UserStatus } from "../../../../prisma/generated/prisma";
+
+
 
 const loginUser = async (payload: TLogInUser) => {
   const { email, password } = payload;
-
   // Find the user by email
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: email,
-      status: UserStatus.ACTIVE,
+
     },
   });
 
   // Validate password
-  const isCorrectPassword = await bcrypt.compare(password, userData?.password);
+  const isCorrectPassword = await bcrypt.compare(password, userData?.passwordHash);
   if (!isCorrectPassword) {
     throw new Error("Invalid password");
   }
@@ -47,7 +47,7 @@ const loginUser = async (payload: TLogInUser) => {
   return {
     accessToken,
     refreshToken,
-    needPasswordChange: userData.needPasswordChange,
+
   };
 };
 
@@ -71,8 +71,7 @@ const refreshToken = async (token: string) => {
   }
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
-      email: decodedData?.email,
-      status: UserStatus.ACTIVE,
+      email: decodedData?.email
     },
   });
   const accessToken = generateToken(
@@ -85,7 +84,7 @@ const refreshToken = async (token: string) => {
   );
   return {
     accessToken,
-    needPasswordChange: userData?.needPasswordChange,
+
   };
 };
 const changePassword = async (user: any, payload: any) => {
@@ -94,12 +93,12 @@ const changePassword = async (user: any, payload: any) => {
   const userData = await prisma.user.findFirstOrThrow({
     where: {
       email: user.email,
-      status: UserStatus.ACTIVE,
+
     },
   });
   const isCorrectPassword = await bcrypt.compare(
     oldPassword,
-    userData.password,
+    userData.passwordHash,
   );
   if (!isCorrectPassword) {
     throw new Error("Invalid password");
@@ -110,8 +109,8 @@ const changePassword = async (user: any, payload: any) => {
       email: user.email,
     },
     data: {
-      password: await bcrypt.hash(newPassword, 12),
-      needPasswordChange: false,
+      passwordHash: await bcrypt.hash(newPassword, 12),
+
     },
   });
 
@@ -126,7 +125,7 @@ const forgotPassword = async (payload: { email: string }) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: email,
-      status: UserStatus.ACTIVE,
+
     },
   });
   const resetPassToken = generateToken(
@@ -156,17 +155,17 @@ const resetPassword = async (
     token,
     process.env.reset_pass_token as Secret,
   );
-  if(!isValidToken){
+  if (!isValidToken) {
     throw new Error("Invalid or expired token");
   }
-  const hashPassword=bcrypt.hashSync(payload.password,12);
+  const hashPassword = bcrypt.hashSync(payload.password, 12);
 
-  const updatePassword=await prisma.user.update({
+  const updatePassword = await prisma.user.update({
     where: {
       email: isValidToken.email
     },
     data: {
-      password: hashPassword
+      passwordHash: hashPassword
     }
   });
   return {
