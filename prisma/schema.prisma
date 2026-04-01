@@ -36,18 +36,18 @@ enum StockPriority {
 }
 
 model User {
-  id                  String        @id @default(cuid())
-  email               String        @unique
-  name                String
-  passwordHash        String
-  role                UserRole      @default(MANAGER)
-  needPasswordChange  Boolean       @default(true)
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
-  categories   Category[]
-  products     Product[]
-  orders       Order[]
-  activityLogs ActivityLog[]
+  id                 String        @id @default(cuid())
+  email              String        @unique
+  name               String
+  passwordHash       String
+  role               UserRole      @default(MANAGER)
+  needPasswordChange Boolean       @default(true)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  categories         Category[]
+  products           Product[]
+  orders             Order[]
+  activityLogs       ActivityLog[]
 
   @@map("users")
 }
