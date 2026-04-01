@@ -8,7 +8,6 @@ import status from "http-status";
 
 const createAUser = catchAsync(async (req: Request, res: Response) => {
   const result = await UserServices.createAUser(req.body);
-  console.log(result);
   sendResponse(res, {
     success: true,
     statusCode: status.CREATED,
