@@ -3,6 +3,7 @@ import { paginationHelpers } from "../../../helpers/paginationHelpers";
 import prisma from "../../../shared/prisma";
 import { IPaginationOptions } from "../../interfaces/pagination";
 import { productSearchableFields } from "./product.constant";
+import { RestockQueueServices } from "../restockQueue/restockQueue.services";
 
 const createProduct = async (
   data: {
@@ -50,6 +51,20 @@ const createProduct = async (
       },
     },
   });
+
+  // Log the activity
+  await prisma.activityLog.create({
+    data: {
+      action: "PRODUCT_CREATED",
+      entityType: "Product",
+      entityId: result.id,
+      description: `Product "${result.name}" created with price $${result.price} and initial stock ${result.stockQty}.`,
+      userId: isUserExist.id,
+    },
+  });
+
+  // Sync restock queue in case initial stock is below threshold
+  await RestockQueueServices.syncRestockQueue(result.id);
 
   return result;
 };
@@ -145,7 +160,8 @@ const updateProduct = async (
     minStockThreshold: number;
     status: ProductStatus;
     categoryId: string;
-  }>
+  }>,
+  user?: any
 ) => {
   if (data.categoryId) {
     await prisma.category.findUniqueOrThrow({
@@ -163,13 +179,56 @@ const updateProduct = async (
     },
   });
 
+  // Log the activity if user is provided
+  if (user) {
+    const isUserExist = await prisma.user.findUnique({ where: { email: user.email } });
+    if (isUserExist) {
+      const changedFields = Object.keys(data).join(", ");
+      await prisma.activityLog.create({
+        data: {
+          action: "PRODUCT_UPDATED",
+          entityType: "Product",
+          entityId: result.id,
+          description: `Product "${result.name}" updated. Fields changed: ${changedFields}.`,
+          userId: isUserExist.id,
+        },
+      });
+    }
+  }
+
+  // Sync restock queue whenever stock-related fields change
+  if (data.stockQty !== undefined || data.minStockThreshold !== undefined) {
+    await RestockQueueServices.syncRestockQueue(id);
+  }
+
   return result;
 };
 
-const deleteProduct = async (id: string) => {
+const deleteProduct = async (id: string, user?: any) => {
+  const product = await prisma.product.findUniqueOrThrow({ where: { id } });
+
+  // Remove from restock queue first (cascade would handle it, but explicit is safer)
+  await prisma.restockQueue.deleteMany({ where: { productId: id } });
+
   const result = await prisma.product.delete({
     where: { id },
   });
+
+  // Log the activity if user is provided
+  if (user) {
+    const isUserExist = await prisma.user.findUnique({ where: { email: user.email } });
+    if (isUserExist) {
+      await prisma.activityLog.create({
+        data: {
+          action: "PRODUCT_DELETED",
+          entityType: "Product",
+          entityId: id,
+          description: `Product "${product.name}" was permanently deleted.`,
+          userId: isUserExist.id,
+        },
+      });
+    }
+  }
 
   return result;
 };

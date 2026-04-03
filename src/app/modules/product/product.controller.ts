@@ -5,7 +5,6 @@ import { sendResponse } from "../../../helpers/sendResponse";
 import { pick } from "../../../shared/pick";
 import { productFilterableFields } from "./product.constant";
 import { ProductServices } from "./product.services";
-import { cleanRegex } from "zod/v4/core/util.cjs";
 
 const createProduct = catchAsync(async (req: Request, res: Response) => {
   console.log(req.body)
@@ -42,7 +41,7 @@ const getProductById = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateProduct = catchAsync(async (req: Request, res: Response) => {
-  const result = await ProductServices.updateProduct(req.params.id as string, req.body);
+  const result = await ProductServices.updateProduct(req.params.id as string, req.body, req.user as any);
   sendResponse(res, {
     success: true,
     statusCode: status.OK,
@@ -52,7 +51,7 @@ const updateProduct = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteProduct = catchAsync(async (req: Request, res: Response) => {
-  await ProductServices.deleteProduct(req.params.id as string);
+  await ProductServices.deleteProduct(req.params.id as string, req.user as any);
   sendResponse(res, {
     success: true,
     statusCode: status.OK,

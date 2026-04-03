@@ -3,6 +3,7 @@ import { paginationHelpers } from "../../../helpers/paginationHelpers";
 import prisma from "../../../shared/prisma";
 import { IPaginationOptions } from "../../interfaces/pagination";
 import { orderSearchableFields } from "./order.constant";
+import { RestockQueueServices } from "../restockQueue/restockQueue.services";
 
 const createOrder = async (
   data: {
@@ -64,8 +65,24 @@ const createOrder = async (
       },
     });
 
+    // Log the activity
+    await tx.activityLog.create({
+      data: {
+        action: "ORDER_CREATED",
+        entityType: "Order",
+        entityId: order.id,
+        description: `Order #${order.orderNumber} created for customer "${order.customerName}" with total $${order.totalPrice.toFixed(2)}.`,
+        userId: isUserExist.id,
+      },
+    });
+
     return order;
   });
+
+  // Sync restock queue for each product affected by this order (outside transaction)
+  for (const item of data.items) {
+    await RestockQueueServices.syncRestockQueue(item.productId);
+  }
 
   return result;
 };
