@@ -131,7 +131,41 @@ const getAllUserData = (params, options) => __awaiter(void 0, void 0, void 0, fu
         data: result,
     };
 });
+const getMe = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_2.default.user.findUnique({
+        where: { email },
+        select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+    });
+    if (!result)
+        throw new Error("User not found");
+    return result;
+});
+const getAUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_2.default.user.findUnique({
+        where: { id },
+        select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+    });
+    if (!result)
+        throw new Error("User not found");
+    return result;
+});
 exports.UserServices = {
     createAUser,
     getAllUserData,
+    getMe,
+    getAUser,
 };

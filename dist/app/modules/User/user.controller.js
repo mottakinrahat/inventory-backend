@@ -40,7 +40,28 @@ const getAllUser = (0, trycatch_1.catchAsync)((req, res) => __awaiter(void 0, vo
         data: result === null || result === void 0 ? void 0 : result.data,
     });
 }));
+const getMe = (0, trycatch_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const result = yield user_services_1.UserServices.getMe((_a = req.user) === null || _a === void 0 ? void 0 : _a.email);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "User profile retrieved successfully",
+        data: result,
+    });
+}));
+const getAUser = (0, trycatch_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_services_1.UserServices.getAUser(req.params.id);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "User retrieved successfully",
+        data: result,
+    });
+}));
 exports.UserController = {
     createAUser,
     getAllUser,
+    getAUser,
+    getMe,
 };

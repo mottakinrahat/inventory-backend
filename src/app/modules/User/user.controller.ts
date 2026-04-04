@@ -29,7 +29,29 @@ const getAllUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMe = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserServices.getMe(req.user?.email as string);
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "User profile retrieved successfully",
+    data: result,
+  });
+});
+
+const getAUser = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserServices.getAUser(req.params.id as string);
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "User retrieved successfully",
+    data: result,
+  });
+});
+
 export const UserController = {
   createAUser,
   getAllUser,
+  getAUser,
+  getMe,
 };

@@ -92,7 +92,41 @@ const getAllUserData = async (params: any, options: IPaginationOptions) => {
   };
 };
 
+const getMe = async (email: string) => {
+  const result = await prisma.user.findUnique({
+    where: { email },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+  if (!result) throw new Error("User not found");
+  return result;
+};
+
+const getAUser = async (id: string) => {
+  const result = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+  if (!result) throw new Error("User not found");
+  return result;
+};
+
 export const UserServices = {
   createAUser,
   getAllUserData,
+  getMe,
+  getAUser,
 };
