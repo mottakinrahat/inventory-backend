@@ -8,6 +8,6 @@ const router = express.Router();
 router.post("/", UserController.createAUser);
 
 router.get("/", UserController.getAllUser);
-router.get("/me", auth(UserRole.ADMIN, UserRole.MANAGER), UserController.getMe);
+router.get("/me",  UserController.getMe);
 router.get("/:id", UserController.getAUser);
 export const userRoutes = router;
