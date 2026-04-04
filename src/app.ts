@@ -8,8 +8,14 @@ import notFound from "./app/middleWares/notFound";
 import cookieParser from "cookie-parser";
 
 
+import config from "./config";
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: [config.frontend_url as string, "http://localhost:3001"],
+    credentials: true,
+  })
+);
 app.use(cookieParser())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -4,9 +4,12 @@ import status from "http-status";
 
 
 export const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-  res.status(status.INTERNAL_SERVER_ERROR).json({
+  const statusCode = err?.statusCode || status.INTERNAL_SERVER_ERROR;
+  const message = err?.message || "Something went wrong";
+  
+  res.status(statusCode).json({
     success: false,
-    message: err?.message || "Something went wrong",
+    message,
     error: err,
   });
 }

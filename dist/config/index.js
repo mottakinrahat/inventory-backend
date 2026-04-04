@@ -19,5 +19,6 @@ exports.default = {
         token_secret: process.env.RESET_PASS_TOKEN,
         token_expires_in: process.env.RESET_PASS_TOKEN_EXPIRES_IN,
         link: process.env.RESET_PASS_LINK,
-    }
+    },
+    frontend_url: process.env.FRONTEND_URL,
 };

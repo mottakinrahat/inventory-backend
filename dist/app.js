@@ -9,8 +9,12 @@ const routes_1 = __importDefault(require("./app/routes"));
 const globalErrorHandler_1 = require("./app/middleWares/globalErrorHandler");
 const notFound_1 = __importDefault(require("./app/middleWares/notFound"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const config_1 = __importDefault(require("./config"));
 const app = (0, express_1.default)();
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({
+    origin: [config_1.default.frontend_url, "http://localhost:3001"],
+    credentials: true,
+}));
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));

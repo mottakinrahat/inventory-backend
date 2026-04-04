@@ -13,14 +13,25 @@ export const auth = (...roles: string[]) => {
   ) => {
     try {
 
-      const token = req.headers.authorization;
+      let token = req.headers.authorization;
       if (!token) {
-        throw new Error("You are not authorized");
+        return res.status(401).json({
+            success: false,
+            message: "You are not authorized",
+        });
       }
-      const verifiedUser = await verifyToken(token, config.jwt.jwt_secret as Secret);
+      if(token.startsWith("Bearer ")){
+        token = token.split(" ")[1];
+      }
+      
+      const verifiedUser = await verifyToken(token as string, config.jwt.jwt_secret as Secret);
       req.user = verifiedUser as JwtPayload & { email: string; role: string; };
+      
       if (roles.length && !roles.includes(verifiedUser.role)) {
-        throw new Error("You are not authorized for this role");
+        return res.status(403).json({
+            success: false,
+            message: "You are not authorized for this role",
+        });
       }
         next();
     } catch (error) {

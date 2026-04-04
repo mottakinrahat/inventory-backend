@@ -18,14 +18,23 @@ const config_1 = __importDefault(require("../../config"));
 const auth = (...roles) => {
     return (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const token = req.headers.authorization;
+            let token = req.headers.authorization;
             if (!token) {
-                throw new Error("You are not authorized");
+                return res.status(401).json({
+                    success: false,
+                    message: "You are not authorized",
+                });
+            }
+            if (token.startsWith("Bearer ")) {
+                token = token.split(" ")[1];
             }
             const verifiedUser = yield (0, jwtHelpers_1.verifyToken)(token, config_1.default.jwt.jwt_secret);
             req.user = verifiedUser;
             if (roles.length && !roles.includes(verifiedUser.role)) {
-                throw new Error("You are not authorized for this role");
+                return res.status(403).json({
+                    success: false,
+                    message: "You are not authorized for this role",
+                });
             }
             next();
         }
