@@ -1,7 +1,7 @@
 import * as bcrypt from "bcrypt";
 import { IPaginationOptions } from "../../interfaces/pagination";
 import { userSearchableFields } from "./user.constant";
-import { Prisma, PrismaClient, UserRole } from "../../../../prisma/generated/prisma";
+import { Prisma, UserRole } from "../../../../prisma/generated/prisma";
 import { paginationHelpers } from "../../../helpers/paginationHelpers";
 import prisma from "../../../shared/prisma";
 

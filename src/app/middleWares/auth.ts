@@ -1,5 +1,5 @@
 
-import { Secret } from "jsonwebtoken";
+import { Secret, JwtPayload } from "jsonwebtoken";
 import { verifyToken } from "../../helpers/jwtHelpers";
 
 import { NextFunction, Request, Response } from "express";
@@ -18,7 +18,7 @@ export const auth = (...roles: string[]) => {
         throw new Error("You are not authorized");
       }
       const verifiedUser = await verifyToken(token, config.jwt.jwt_secret as Secret);
-      req.user=verifiedUser;
+      req.user = verifiedUser as JwtPayload & { email: string; role: string; };
       if (roles.length && !roles.includes(verifiedUser.role)) {
         throw new Error("You are not authorized for this role");
       }
