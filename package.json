@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "vercel-build": "prisma generate && npm run build",
     "start": "node dist/server.js",
     "postinstall": "prisma generate"
@@ -14,7 +14,7 @@
   "prisma": {
     "schema": "prisma/schema.prisma"
   },
-  "keywords": [ ],
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -23,7 +23,7 @@
     "@types/express": "^5.0.3",
     "@types/node": "^24.3.1",
     "@types/nodemailer": "^7.0.9",
-    "prisma": "^6.19.2",
+    "prisma": "^6.19.3",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
