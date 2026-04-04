@@ -79,8 +79,8 @@ const refreshToken = async (token: string) => {
       email: userData?.email,
       role: userData?.role,
     },
-    process.env.jwt_secret as Secret,
-    process.env.expires_in as string,
+    config.jwt.jwt_secret as Secret,
+    config.jwt.expires_in as string,
   );
   return {
     accessToken,
@@ -130,11 +130,11 @@ const forgotPassword = async (payload: { email: string }) => {
   });
   const resetPassToken = generateToken(
     { email: userData.email, role: userData.role },
-    process.env.reset_pass_token as Secret,
-    process.env.expires_in as string,
+    config.reset_pass.token_secret as Secret,
+    config.reset_pass.token_expires_in as string,
   );
   const resetPassLink =
-    process.env.RESET_PASS_LINK +
+    config.reset_pass.link +
     `?userId=${userData.id}&token=${resetPassToken}`;
   await emailSender(
     userData?.email,
@@ -153,7 +153,7 @@ const resetPassword = async (
 ) => {
   const isValidToken = await verifyToken(
     token,
-    process.env.reset_pass_token as Secret,
+    config.reset_pass.token_secret as Secret,
   );
   if (!isValidToken) {
     throw new Error("Invalid or expired token");

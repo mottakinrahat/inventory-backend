@@ -17,11 +17,12 @@ const trycatch_1 = require("../../../helpers/trycatch");
 const sendResponse_1 = require("../../../helpers/sendResponse");
 const http_status_1 = __importDefault(require("http-status"));
 const auth_service_1 = require("./auth.service");
+const config_1 = __importDefault(require("../../../config"));
 const loginUser = (0, trycatch_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield auth_service_1.authServices.loginUser(req.body);
     const { refreshToken } = result;
     res.cookie("refreshToken", refreshToken, {
-        secure: true,
+        secure: config_1.default.env === "production",
         httpOnly: true,
     });
     (0, sendResponse_1.sendResponse)(res, {

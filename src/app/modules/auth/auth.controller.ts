@@ -4,12 +4,13 @@ import { catchAsync } from "../../../helpers/trycatch";
 import { sendResponse } from "../../../helpers/sendResponse";
 import status from "http-status";
 import { authServices } from "./auth.service";
+import config from "../../../config";
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const result = await authServices.loginUser(req.body);
   const { refreshToken } = result;
   res.cookie("refreshToken", refreshToken, {
-    secure: true,
+    secure: config.env === "production",
     httpOnly: true,
   });
   sendResponse(res, {
