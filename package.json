@@ -1,5 +1,5 @@
 {
-  "name": "hospitalmanagement",
+  "name": "inventory-management",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
+    "vercel-build": "prisma generate && npm run build",
     "start": "node dist/server.js",
     "postinstall": "prisma generate"
   },
