@@ -144,6 +144,74 @@ const getAllOrders = async (params: any, options: IPaginationOptions) => {
   };
 };
 
+const getMyOrders = async (user: any, params: any, options: IPaginationOptions) => {
+  const { page, limit, sortBy, sortOrder, skip } =
+    paginationHelpers.calculatePagination(options);
+
+  const isUserExist = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+    },
+  });
+
+  const { searchTerm, ...filterData } = params;
+  const andConditions: Prisma.OrderWhereInput[] = [
+    {
+      createdById: isUserExist.id,
+    },
+  ];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: orderSearchableFields.map((field) => ({
+        [field]: {
+          contains: searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: filterData[key as keyof typeof filterData],
+        },
+      })),
+    });
+  }
+
+  const whereConditions: Prisma.OrderWhereInput = { AND: andConditions };
+
+  const result = await prisma.order.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy:
+      sortBy && sortOrder ? [{ [sortBy]: sortOrder }] : [{ createdAt: "desc" }],
+    include: {
+      createdBy: {
+        select: { id: true, name: true, email: true },
+      },
+      items: {
+        include: { product: true },
+      },
+    },
+  });
+
+  const total = await prisma.order.count({ where: whereConditions });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
 const getOrderById = async (id: string) => {
   const result = await prisma.order.findUniqueOrThrow({
     where: { id },
@@ -184,4 +252,5 @@ export const OrderServices = {
   getAllOrders,
   getOrderById,
   updateOrder,
+  getMyOrders,
 };

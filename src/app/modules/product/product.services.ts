@@ -135,6 +135,83 @@ const getAllProducts = async (params: any, options: IPaginationOptions) => {
   };
 };
 
+const getMyProducts = async (user: any, params: any, options: IPaginationOptions) => {
+  const { page, limit, sortBy, sortOrder, skip } =
+    paginationHelpers.calculatePagination(options);
+
+  const isUserExist = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+    },
+  });
+
+  const { searchTerm, ...filterData } = params;
+  const andConditions: Prisma.ProductWhereInput[] = [
+    {
+      createdById: isUserExist.id,
+    },
+  ];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: productSearchableFields.map((field) => ({
+        [field]: {
+          contains: searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.keys(filterData).map((key) => {
+        if (key === "price" || key === "stockQty" || key === "minStockThreshold") {
+          return {
+            [key]: {
+              equals: Number(filterData[key as keyof typeof filterData]),
+            },
+          };
+        }
+        return {
+          [key]: {
+            equals: filterData[key as keyof typeof filterData],
+          },
+        };
+      }),
+    });
+  }
+
+  const whereConditions: Prisma.ProductWhereInput = { AND: andConditions };
+
+  const result = await prisma.product.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy:
+      sortBy && sortOrder ? [{ [sortBy]: sortOrder }] : [{ createdAt: "desc" }],
+    include: {
+      category: {
+        select: { id: true, name: true },
+      },
+      createdBy: {
+        select: { id: true, name: true, email: true },
+      },
+    },
+  });
+
+  const total = await prisma.product.count({ where: whereConditions });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
 const getProductById = async (id: string) => {
   const result = await prisma.product.findUniqueOrThrow({
     where: { id },
@@ -239,4 +316,5 @@ export const ProductServices = {
   getProductById,
   updateProduct,
   deleteProduct,
+  getMyProducts,
 };

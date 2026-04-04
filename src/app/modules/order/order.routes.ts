@@ -16,6 +16,8 @@ router.post(
 
 router.get("/", OrderController.getAllOrders);
 
+router.get("/my-orders", auth(), OrderController.getMyOrders);
+
 router.get("/:id", OrderController.getOrderById);
 
 router.patch(

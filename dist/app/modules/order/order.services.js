@@ -139,6 +139,63 @@ const getAllOrders = (params, options) => __awaiter(void 0, void 0, void 0, func
         data: result,
     };
 });
+const getMyOrders = (user, params, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { page, limit, sortBy, sortOrder, skip } = paginationHelpers_1.paginationHelpers.calculatePagination(options);
+    const isUserExist = yield prisma_1.default.user.findUniqueOrThrow({
+        where: {
+            email: user.email,
+        },
+    });
+    const { searchTerm } = params, filterData = __rest(params, ["searchTerm"]);
+    const andConditions = [
+        {
+            createdById: isUserExist.id,
+        },
+    ];
+    if (searchTerm) {
+        andConditions.push({
+            OR: order_constant_1.orderSearchableFields.map((field) => ({
+                [field]: {
+                    contains: searchTerm,
+                    mode: "insensitive",
+                },
+            })),
+        });
+    }
+    if (Object.keys(filterData).length > 0) {
+        andConditions.push({
+            AND: Object.keys(filterData).map((key) => ({
+                [key]: {
+                    equals: filterData[key],
+                },
+            })),
+        });
+    }
+    const whereConditions = { AND: andConditions };
+    const result = yield prisma_1.default.order.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
+        orderBy: sortBy && sortOrder ? [{ [sortBy]: sortOrder }] : [{ createdAt: "desc" }],
+        include: {
+            createdBy: {
+                select: { id: true, name: true, email: true },
+            },
+            items: {
+                include: { product: true },
+            },
+        },
+    });
+    const total = yield prisma_1.default.order.count({ where: whereConditions });
+    return {
+        meta: {
+            page,
+            limit,
+            total,
+        },
+        data: result,
+    };
+});
 const getOrderById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.order.findUniqueOrThrow({
         where: { id },
@@ -170,4 +227,5 @@ exports.OrderServices = {
     getAllOrders,
     getOrderById,
     updateOrder,
+    getMyOrders,
 };

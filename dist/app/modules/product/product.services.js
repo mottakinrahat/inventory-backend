@@ -130,6 +130,72 @@ const getAllProducts = (params, options) => __awaiter(void 0, void 0, void 0, fu
         data: result,
     };
 });
+const getMyProducts = (user, params, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { page, limit, sortBy, sortOrder, skip } = paginationHelpers_1.paginationHelpers.calculatePagination(options);
+    const isUserExist = yield prisma_1.default.user.findUniqueOrThrow({
+        where: {
+            email: user.email,
+        },
+    });
+    const { searchTerm } = params, filterData = __rest(params, ["searchTerm"]);
+    const andConditions = [
+        {
+            createdById: isUserExist.id,
+        },
+    ];
+    if (searchTerm) {
+        andConditions.push({
+            OR: product_constant_1.productSearchableFields.map((field) => ({
+                [field]: {
+                    contains: searchTerm,
+                    mode: "insensitive",
+                },
+            })),
+        });
+    }
+    if (Object.keys(filterData).length > 0) {
+        andConditions.push({
+            AND: Object.keys(filterData).map((key) => {
+                if (key === "price" || key === "stockQty" || key === "minStockThreshold") {
+                    return {
+                        [key]: {
+                            equals: Number(filterData[key]),
+                        },
+                    };
+                }
+                return {
+                    [key]: {
+                        equals: filterData[key],
+                    },
+                };
+            }),
+        });
+    }
+    const whereConditions = { AND: andConditions };
+    const result = yield prisma_1.default.product.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
+        orderBy: sortBy && sortOrder ? [{ [sortBy]: sortOrder }] : [{ createdAt: "desc" }],
+        include: {
+            category: {
+                select: { id: true, name: true },
+            },
+            createdBy: {
+                select: { id: true, name: true, email: true },
+            },
+        },
+    });
+    const total = yield prisma_1.default.product.count({ where: whereConditions });
+    return {
+        meta: {
+            page,
+            limit,
+            total,
+        },
+        data: result,
+    };
+});
 const getProductById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.product.findUniqueOrThrow({
         where: { id },
@@ -211,4 +277,5 @@ exports.ProductServices = {
     getProductById,
     updateProduct,
     deleteProduct,
+    getMyProducts,
 };

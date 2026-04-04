@@ -40,6 +40,18 @@ const getAllOrders = (0, trycatch_1.catchAsync)((req, res) => __awaiter(void 0, 
         data: result === null || result === void 0 ? void 0 : result.data,
     });
 }));
+const getMyOrders = (0, trycatch_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const filter = (0, pick_1.pick)(req.query, order_constant_1.orderFilterableFields);
+    const options = (0, pick_1.pick)(req.query, ["page", "limit", "sortBy", "sortOrder"]);
+    const result = yield order_services_1.OrderServices.getMyOrders(req.user, filter, options);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "My orders retrieved successfully",
+        meta: result === null || result === void 0 ? void 0 : result.meta,
+        data: result === null || result === void 0 ? void 0 : result.data,
+    });
+}));
 const getOrderById = (0, trycatch_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield order_services_1.OrderServices.getOrderById(req.params.id);
     (0, sendResponse_1.sendResponse)(res, {
@@ -63,4 +75,5 @@ exports.OrderController = {
     getAllOrders,
     getOrderById,
     updateOrder,
+    getMyOrders,
 };

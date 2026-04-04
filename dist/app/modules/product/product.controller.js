@@ -41,6 +41,18 @@ const getAllProducts = (0, trycatch_1.catchAsync)((req, res) => __awaiter(void 0
         data: result === null || result === void 0 ? void 0 : result.data,
     });
 }));
+const getMyProducts = (0, trycatch_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const filter = (0, pick_1.pick)(req.query, product_constant_1.productFilterableFields);
+    const options = (0, pick_1.pick)(req.query, ["page", "limit", "sortBy", "sortOrder"]);
+    const result = yield product_services_1.ProductServices.getMyProducts(req.user, filter, options);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "My products retrieved successfully",
+        meta: result === null || result === void 0 ? void 0 : result.meta,
+        data: result === null || result === void 0 ? void 0 : result.data,
+    });
+}));
 const getProductById = (0, trycatch_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield product_services_1.ProductServices.getProductById(req.params.id);
     (0, sendResponse_1.sendResponse)(res, {
@@ -74,4 +86,5 @@ exports.ProductController = {
     getProductById,
     updateProduct,
     deleteProduct,
+    getMyProducts,
 };

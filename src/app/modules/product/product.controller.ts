@@ -30,6 +30,19 @@ const getAllProducts = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyProducts = catchAsync(async (req: Request, res: Response) => {
+  const filter = pick(req.query, productFilterableFields);
+  const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
+  const result = await ProductServices.getMyProducts(req.user as any, filter, options);
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "My products retrieved successfully",
+    meta: result?.meta,
+    data: result?.data,
+  });
+});
+
 const getProductById = catchAsync(async (req: Request, res: Response) => {
   const result = await ProductServices.getProductById(req.params.id as string);
   sendResponse(res, {
@@ -66,4 +79,5 @@ export const ProductController = {
   getProductById,
   updateProduct,
   deleteProduct,
+  getMyProducts,
 };

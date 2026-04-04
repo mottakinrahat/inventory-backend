@@ -13,6 +13,7 @@ const product_validation_1 = require("./product.validation");
 const router = express_1.default.Router();
 router.post("/", (0, auth_1.auth)(prisma_1.UserRole.ADMIN, prisma_1.UserRole.MANAGER), product_controller_1.ProductController.createProduct);
 router.get("/", product_controller_1.ProductController.getAllProducts);
+router.get("/my-products", (0, auth_1.auth)(), product_controller_1.ProductController.getMyProducts);
 router.get("/:id", product_controller_1.ProductController.getProductById);
 router.patch("/:id", (0, auth_1.auth)(prisma_1.UserRole.ADMIN, prisma_1.UserRole.MANAGER), (0, validateRequest_1.default)(product_validation_1.ProductValidation.updateProductValidation), product_controller_1.ProductController.updateProduct);
 router.delete("/:id", (0, auth_1.auth)(prisma_1.UserRole.ADMIN, prisma_1.UserRole.MANAGER), product_controller_1.ProductController.deleteProduct);
