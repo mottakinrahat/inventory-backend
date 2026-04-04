@@ -1,4 +1,4 @@
-import express, {  Request, Response } from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 
 import router from "./app/routes";
@@ -12,18 +12,18 @@ import config from "./config";
 const app = express();
 app.use(
   cors({
-    origin: [config.frontend_url as string, "http://localhost:3001"],
+    origin: [config.frontend_url as string, "http://localhost:3001", "http://localhost:3000"],
     credentials: true,
   })
 );
 app.use(cookieParser())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.get("/", (req:Request, res:Response) => {
+app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
-app.use('/api/v1',router)
+app.use('/api/v1', router)
 
 
 
