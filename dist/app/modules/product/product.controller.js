@@ -20,7 +20,6 @@ const pick_1 = require("../../../shared/pick");
 const product_constant_1 = require("./product.constant");
 const product_services_1 = require("./product.services");
 const createProduct = (0, trycatch_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
     const result = yield product_services_1.ProductServices.createProduct(req.body, req.user);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
