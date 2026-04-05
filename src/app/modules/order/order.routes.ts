@@ -10,7 +10,6 @@ const router = express.Router();
 router.post(
   "/",
   auth(UserRole.ADMIN, UserRole.MANAGER),
-  validateRequest(OrderValidation.createOrderValidation),
   OrderController.createOrder
 );
 

@@ -5,6 +5,7 @@ import { IPaginationOptions } from "../../interfaces/pagination";
 import { orderSearchableFields } from "./order.constant";
 import { RestockQueueServices } from "../restockQueue/restockQueue.services";
 
+
 const createOrder = async (
   data: {
     customerName: string;
@@ -13,6 +14,7 @@ const createOrder = async (
   },
   user: any
 ) => {
+
   const isUserExist = await prisma.user.findUniqueOrThrow({
     where: {
       email: user.email,
@@ -219,7 +221,7 @@ const getOrderById = async (id: string) => {
       createdBy: {
         select: { id: true, name: true, email: true },
       },
-       items: {
+      items: {
         include: { product: true }
       }
     },
@@ -237,8 +239,8 @@ const updateOrder = async (
   const result = await prisma.order.update({
     where: { id },
     data,
-     include: {
-       items: {
+    include: {
+      items: {
         include: { product: true }
       }
     },
